@@ -128,7 +128,6 @@ function generateOrderNumber() {
 
   return `${day}/${month}/${year}/${random}`;
 }
-
   async function placeOrder() {
     if (cart.length === 0) return;
 
@@ -140,8 +139,7 @@ function generateOrderNumber() {
   address: address || "West Bay, Roatán",
   status: "new",
   total: cartTotal,
-  order_number: generateOrderNumber() // 👈 ADD THIS
-})
+  order_number: generateOrderNumber() // })
       .select()
       .single();
 
