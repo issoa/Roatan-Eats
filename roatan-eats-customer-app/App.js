@@ -29,7 +29,7 @@ export default function App() {
   const [orders, setOrders] = useState([]);
   const [customerName, setCustomerName] = useState("Guest Customer");
   const [phone, setPhone] = useState("+504 ");
-  const [address, setAddress] = useState("West End, Roatán");
+  const [address, setAddress] = useState("West Bay, Roatán");
 
   const filteredRestaurants = useMemo(() => {
     return restaurants.filter((restaurant) => {
