@@ -117,19 +117,31 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, []);
+function generateOrderNumber() {
+  const now = new Date();
+
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+
+  const random = Math.floor(100 + Math.random() * 900);
+
+  return `${day}/${month}/${year}/${random}`;
+}
 
   async function placeOrder() {
     if (cart.length === 0) return;
 
     const { data: createdOrder, error: orderError } = await supabase
       .from("orders")
-      .insert({
-        customer_name: customerName || "Guest Customer",
-        phone: phone || "",
-        address: address || "West Bay, Roatán",
-        status: "new",
-        total: cartTotal
-      })
+     .insert({
+  customer_name: customerName || "Guest Customer",
+  phone: phone || "",
+  address: address || "West Bay, Roatán",
+  status: "new",
+  total: cartTotal,
+  order_number: generateOrderNumber() // 👈 ADD THIS
+})
       .select()
       .single();
 
