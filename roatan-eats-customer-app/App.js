@@ -18,9 +18,8 @@ import { colors, shadow } from "./src/styles";
 import { supabase } from "./src/supabase";
 
 function money(value) {
-  return `$${value.toFixed(2)}`;
+  return `$${Number(value || 0).toFixed(2)}`;
 }
-
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
