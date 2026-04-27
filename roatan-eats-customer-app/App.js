@@ -132,16 +132,17 @@ function generateOrderNumber() {
     if (cart.length === 0) return;
 
     const { data: createdOrder, error: orderError } = await supabase
-      .from("orders")
-     .insert({
-  customer_name: customerName || "Guest Customer",
-  phone: phone || "",
-  address: address || "West Bay, Roatán",
-  status: "new",
-  total: cartTotal,
-  order_number: generateOrderNumber() // })
-      .select()
-      .single();
+  .from("orders")
+  .insert({
+    customer_name: customerName || "Guest Customer",
+    phone: phone || "",
+    address: address || "West Bay, Roatán",
+    status: "new",
+    total: cartTotal,
+    order_number: generateOrderNumber()
+  })
+  .select()
+  .single();
 
     if (orderError) {
       Alert.alert("Order failed", orderError.message);
