@@ -126,7 +126,7 @@ export default function App() {
       .insert({
         customer_name: customerName || "Guest Customer",
         phone: phone || "",
-        address: address || "West End, Roatán",
+        address: address || "West Bay, Roatán",
         status: "new",
         total: cartTotal
       })
@@ -207,7 +207,7 @@ export default function App() {
             <>
               <View style={styles.hero}>
                 <Text style={styles.eyebrow}>Delivering around</Text>
-                <Text style={styles.heroTitle}>West End, Roatán</Text>
+                <Text style={styles.heroTitle}>West Bay, Roatán</Text>
                 <Text style={styles.heroCopy}>Browse island favorites, order ahead, and track your status.</Text>
               </View>
               <View style={styles.searchBox}>
