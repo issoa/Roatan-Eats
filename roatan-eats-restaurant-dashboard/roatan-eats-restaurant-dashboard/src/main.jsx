@@ -155,7 +155,7 @@ function App() {
                 <article key={order.id} className="orderCard">
                   <div className="orderTop">
                     <div>
-                      <h2>{String(order.id).slice(0, 8).toUpperCase()}</h2>
+                      <h2>{order.order_number || String(order.id).slice(0, 8).toUpperCase()}</h2>
                       <p>Supabase order · {formatTime(order.created_at)}</p>
                     </div>
                     <span className={`badge ${status}`}>{statusMeta[status].label}</span>
