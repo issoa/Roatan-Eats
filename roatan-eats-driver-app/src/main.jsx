@@ -197,7 +197,7 @@ useEffect(() => {
               <article className="card" key={order.id}>
                 <div className="cardTop">
                   <div>
-                    <div className="orderId">{shortId(order.id)}</div>
+                    <div className="orderId">{order.order_number || shortId(order.id)}</div>
                     <p className="muted">Order placed · {formatTime(order.created_at)}</p>
                   </div>
                   <span className="badge">{String(order.status || "").replace("_", " ")}</span>
