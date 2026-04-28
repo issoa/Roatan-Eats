@@ -139,8 +139,7 @@ function generateOrderNumber() {
   address: address || "West Bay, Roatán",
   status: "new",
   total: cartTotal,
-  order_number: generateOrderNumber() // })
-      .select()
+  order_number: await generateOrderNumber()      .select()
       .single();
 
     if (orderError) {
