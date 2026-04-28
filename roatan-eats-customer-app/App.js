@@ -121,6 +121,9 @@ const [lastOrder, setLastOrder] = useState(null);
 async function placeOrder() {
   if (cart.length === 0) return;
 
+  async function placeOrder() {
+  if (cart.length === 0) return;
+
   const { data: createdOrder, error: orderError } = await supabase
     .from("orders")
     .insert({
@@ -139,7 +142,6 @@ async function placeOrder() {
     return;
   }
 
-  // ✅ CREATE ORDER ITEMS
   const orderItems = cart.map((item) => ({
     order_id: createdOrder.id,
     menu_item_id: null,
@@ -155,14 +157,49 @@ async function placeOrder() {
     Alert.alert("Order saved, item issue", itemsError.message);
   }
 
-  // ✅ CONFIRMATION FLOW (THIS WAS YOUR CONFUSION)
   setLastOrder(createdOrder);
   setScreen("confirmation");
 
-  // ✅ RESET
   setCart([]);
   await loadOrders();
 }
+  
+async function generateOrderNumber() {
+  const now = new Date();
+
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+
+  const { data, error } = await supabase.rpc("get_today_order_count");
+
+  const count = error ? 1 : Number(data || 0) + 1;
+  const sequence = String(count).padStart(3, "0");
+
+  return `${day}/${month}/${year}/${sequence}`;
+}
+
+async function placeOrder() {
+  if (cart.length === 0) return;
+
+  const { data: createdOrder, error: orderError } = await supabase
+    .from("orders")
+    .insert({
+      customer_name: customerName || "Guest Customer",
+      phone: phone || "",
+      address: address || "West Bay, Roatán",
+      status: "new",
+      total: cartTotal,
+      order_number: await generateOrderNumber()
+    })
+    .select()
+    .single();
+
+  if (orderError) {
+    Alert.alert("Order failed", orderError.message);
+    return;
+  }
+
   const orderItems = cart.map((item) => ({
     order_id: createdOrder.id,
     menu_item_id: null,
@@ -170,23 +207,20 @@ async function placeOrder() {
     price: item.price
   }));
 
-  const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+  const { error: itemsError } = await supabase
+    .from("order_items")
+    .insert(orderItems);
 
   if (itemsError) {
     Alert.alert("Order saved, item issue", itemsError.message);
   }
-setLastOrder(createdOrder);
-setScreen("confirmation");
 
-setCart([]);
-await loadOrders();
-setLastOrder(createdOrder);
-setScreen("confirmation");
+  setLastOrder(createdOrder);
+  setScreen("confirmation");
+
   setCart([]);
   await loadOrders();
-  
-  
-
+}
   function Header({ title, back }) {
     return (
       <View style={styles.header}>
