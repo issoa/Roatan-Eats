@@ -117,18 +117,20 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, []);
-function generateOrderNumber() {
+async function generateOrderNumber() {
   const now = new Date();
 
   const day = String(now.getDate()).padStart(2, "0");
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const year = now.getFullYear();
 
-  const random = Math.floor(100 + Math.random() * 900);
+  const { data, error } = await supabase.rpc("get_today_order_count");
 
-  return `${day}/${month}/${year}/${random}`;
-}
-  async function placeOrder() {
+  const count = error ? 1 : Number(data || 0) + 1;
+  const sequence = String(count).padStart(3, "0");
+
+  return `${day}/${month}/${year}/${sequence}`;
+}  async function placeOrder() {
     if (cart.length === 0) return;
 
     const { data: createdOrder, error: orderError } = await supabase
