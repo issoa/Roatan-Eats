@@ -27,6 +27,7 @@ export default function App() {
   const [category, setCategory] = useState("All");
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
+const [lastOrder, setLastOrder] = useState(null);
   const [customerName, setCustomerName] = useState("Guest Customer");
   const [phone, setPhone] = useState("+504 ");
   const [address, setAddress] = useState("West Bay, Roatán");
@@ -117,21 +118,6 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, []);
-async function generateOrderNumber() {
-  const now = new Date();
-
-  const day = String(now.getDate()).padStart(2, "0");
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const year = now.getFullYear();
-
-  const { data, error } = await supabase.rpc("get_today_order_count");
-
-  const count = error ? 1 : Number(data || 0) + 1;
-  const sequence = String(count).padStart(3, "0");
-
-  return `${day}/${month}/${year}/${sequence}`;
-}
-
 async function placeOrder() {
   if (cart.length === 0) return;
 
@@ -153,6 +139,30 @@ async function placeOrder() {
     return;
   }
 
+  // ✅ CREATE ORDER ITEMS
+  const orderItems = cart.map((item) => ({
+    order_id: createdOrder.id,
+    menu_item_id: null,
+    quantity: item.qty,
+    price: item.price
+  }));
+
+  const { error: itemsError } = await supabase
+    .from("order_items")
+    .insert(orderItems);
+
+  if (itemsError) {
+    Alert.alert("Order saved, item issue", itemsError.message);
+  }
+
+  // ✅ CONFIRMATION FLOW (THIS WAS YOUR CONFUSION)
+  setLastOrder(createdOrder);
+  setScreen("confirmation");
+
+  // ✅ RESET
+  setCart([]);
+  await loadOrders();
+}
   const orderItems = cart.map((item) => ({
     order_id: createdOrder.id,
     menu_item_id: null,
@@ -165,12 +175,17 @@ async function placeOrder() {
   if (itemsError) {
     Alert.alert("Order saved, item issue", itemsError.message);
   }
+setLastOrder(createdOrder);
+setScreen("confirmation");
 
+setCart([]);
+await loadOrders();
+setLastOrder(createdOrder);
+setScreen("confirmation");
   setCart([]);
   await loadOrders();
-  setScreen("orders");
-  Alert.alert("Order placed", "The restaurant dashboard will receive this order.");
-}
+  
+  
 
   function Header({ title, back }) {
     return (
@@ -369,7 +384,7 @@ async function placeOrder() {
           ) : (
             orders.map((order) => (
               <View key={order.id} style={styles.orderCard}>
-                <Text style={styles.orderId}>{order.id}</Text>
+                <Text style={styles.orderId}>{order.order_number || order.id}</Text>
                 <Text style={styles.muted}>{order.placedAt}</Text>
                 <Text style={styles.status}>Status: {order.status.replace("_", " ")}</Text>
                 <Text style={styles.price}>{money(order.total)}</Text>
@@ -381,12 +396,37 @@ async function placeOrder() {
       </SafeAreaView>
     );
   }
+function ConfirmationScreen() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={{ padding: 20, alignItems: "center" }}>
+        <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
+          ✅ Order Confirmed
+        </Text>
 
+        <Text style={{ fontSize: 18, marginBottom: 10 }}>
+          Order #: {lastOrder?.order_number || lastOrder?.id}
+        </Text>
+
+        <Text style={{ fontSize: 16, marginBottom: 20 }}>
+          Status: Preparing
+        </Text>
+
+        <Pressable
+          style={styles.primaryButton}
+          onPress={() => setScreen("orders")}
+        >
+          <Text style={styles.primaryButtonText}>View Orders</Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}
   let content = <HomeScreen />;
   if (screen === "restaurant") content = <RestaurantScreen />;
   if (screen === "cart") content = <CartScreen />;
   if (screen === "orders") content = <OrdersScreen />;
-
+  if (screen === "confirmation") content = <ConfirmationScreen />;
   return (
     <>
       {content}
