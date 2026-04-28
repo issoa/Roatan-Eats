@@ -102,21 +102,23 @@ export default function App() {
   }
 
   useEffect(() => {
-    loadOrders();
+  loadOrders();
 
-    const channel = supabase
-      .channel("customer-orders")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        () => loadOrders()
-      )
-      .subscribe();
+  const channel = supabase
+    .channel("orders-realtime")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "orders" },
+      (payload) => {
+        loadOrders();
+      }
+    )
+    .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
 async function generateOrderNumber() {
   const now = new Date();
 
